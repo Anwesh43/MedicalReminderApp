@@ -26,9 +26,16 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         mainView =  new MainView(this);
         List<BaseButton> baseButtons = new ArrayList<BaseButton>() {{
-            add(new BaseButton("Pill Reminder"));
 
         }};
+        BaseButton pillReminderButton = new BaseButton("Pill Reminder");
+        pillReminderButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this,ReminderActivity.class);
+                startActivity(intent);
+            }
+        });
         BaseButton pillRefill = new BaseButton("Pill Refill");
         pillRefill.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -37,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+        baseButtons.add(pillReminderButton);
         baseButtons.add(pillRefill);
         baseButtons.add(new BaseButton("Contact Physician"));
         mainView.setBaseButtonList(baseButtons);
