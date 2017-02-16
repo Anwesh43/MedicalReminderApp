@@ -155,11 +155,13 @@ public class RefillLayout extends ViewGroup{
             int r = Math.max(w,h)/12;
             paint.setColor(Color.parseColor("#3F51B5"));
             paint.setStyle(Paint.Style.FILL);
+
             canvas.drawRoundRect(new RectF(0,0,w,h),r,r,paint);
             if(pill!=null) {
-                paint.setStrokeWidth(12);
+                paint.setStrokeWidth(6);
                 paint.setColor(Color.WHITE);
                 paint.setTextSize(40);
+                paint.setStyle(Paint.Style.STROKE);
                 canvas.drawText(pill.getName(),w/2-paint.measureText(pill.getName())/2,h/3,paint);
                 drawControls(canvas,paint,w,h);
             }
