@@ -138,7 +138,7 @@ public class RefillLayout extends ViewGroup{
     public RefillView getView(Context context,Pill pill) {
         return new RefillView(context,pill);
     }
-    class RefillView extends BaseView {
+    public class RefillView extends BaseView {
         private Pill pill;
         private Icon add,minus;
         private int time = 0,n;
@@ -204,7 +204,7 @@ public class RefillLayout extends ViewGroup{
             add.handleTap(x,y);
             postInvalidate();
         }
-        private class Icon {
+        public class Icon {
             public float x,y,r;
             public Icon(float x,float y,float r) {
                 this.x = x;
