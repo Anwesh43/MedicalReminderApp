@@ -150,47 +150,54 @@ public class RefillLayout extends ViewGroup{
         public void drawElements(final Canvas canvas, Paint paint) {
             int w = canvas.getWidth(),h = canvas.getHeight();
             if(time == 0) {
-                add = new Icon(w/5+5*w/10,2*h/3,w/20){
-                    public void draw(Canvas c,Paint p) {
-                        super.draw(c,p);
-                        float gap = (this.r*4)/5;
-                        c.drawLine(this.x-gap,this.y,this.x+gap,this.y,p);
-                        c.drawLine(this.x,this.y-gap,this.x,this.y+gap,p);
-
-                    }
-                    public void handleRealm() {
-                        n++;
-                        realmModelUtil.changePillNumber(pill.getId(),1);
-                    }
-                };
-                minus = new Icon(w/5+w/10,2*h/3,w/20){
-                    public void draw(Canvas c,Paint p) {
-                        super.draw(c,p);
-                        float gap = (this.r*4)/5;
-                        c.drawLine(this.x-gap,this.y,this.x+gap,this.y,p);
-                    }
-                    public void handleRealm() {
-                        if(n>0) {
-                            n--;
-                            realmModelUtil.changePillNumber(pill.getId(), -1);
-                        }
-                    }
-                };
+                init(w,h);
             }
             int r = Math.max(w,h)/12;
             paint.setColor(Color.parseColor("#3F51B5"));
             paint.setStyle(Paint.Style.FILL);
             canvas.drawRoundRect(new RectF(0,0,w,h),r,r,paint);
             if(pill!=null) {
+                paint.setStrokeWidth(12);
                 paint.setColor(Color.WHITE);
                 paint.setTextSize(40);
                 canvas.drawText(pill.getName(),w/2-paint.measureText(pill.getName())/2,h/3,paint);
-                add.draw(canvas,paint);
-                canvas.drawText(""+n,w/5+3*w/10,2*h/3,paint);
-                minus.draw(canvas,paint);
+                drawControls(canvas,paint,w,h);
             }
             time++;
 
+        }
+        public void drawControls(Canvas canvas,Paint paint,int w,int h) {
+            add.draw(canvas,paint);
+            canvas.drawText(""+n,w/5+3*w/10,2*h/3,paint);
+            minus.draw(canvas,paint);
+        }
+        public void init(int w,int h) {
+            add = new Icon(w/5+5*w/10,2*h/3,w/20){
+                public void draw(Canvas c,Paint p) {
+                    super.draw(c,p);
+                    float gap = (this.r*4)/5;
+                    c.drawLine(this.x-gap,this.y,this.x+gap,this.y,p);
+                    c.drawLine(this.x,this.y-gap,this.x,this.y+gap,p);
+
+                }
+                public void handleRealm() {
+                    n++;
+                    realmModelUtil.changePillNumber(pill.getId(),1);
+                }
+            };
+            minus = new Icon(w/5+w/10,2*h/3,w/20){
+                public void draw(Canvas c,Paint p) {
+                    super.draw(c,p);
+                    float gap = (this.r*4)/5;
+                    c.drawLine(this.x-gap,this.y,this.x+gap,this.y,p);
+                }
+                public void handleRealm() {
+                    if(n>0) {
+                        n--;
+                        realmModelUtil.changePillNumber(pill.getId(), -1);
+                    }
+                }
+            };
         }
         public void handleTap(float x,float y) {
             minus.handleTap(x,y);
