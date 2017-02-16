@@ -22,7 +22,7 @@ public class BaseView extends View {
         super(context);
     }
     public void onDraw(Canvas canvas) {
-        canvas.drawColor(Color.parseColor("#D84315"));
+        canvas.drawColor(Color.parseColor("#FF6F00"));
         drawElements(canvas,paint);
     }
     public void drawElements(Canvas canvas,Paint paint) {
