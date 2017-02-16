@@ -1,6 +1,7 @@
 package com.anwesome.app.medicalpillreminder;
 
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 
 import com.anwesome.app.medicalpillreminder.views.RefillLayout;
@@ -14,6 +15,8 @@ public class RefillActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         refillLayout = new RefillLayout(this);
         setContentView(refillLayout);
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setTitle("Pill Refill");
 
     }
 }

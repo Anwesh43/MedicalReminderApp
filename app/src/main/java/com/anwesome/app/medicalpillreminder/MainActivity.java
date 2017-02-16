@@ -2,6 +2,7 @@ package com.anwesome.app.medicalpillreminder;
 
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -42,5 +43,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(mainView);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setTitle("Main Menu");
     }
 }
