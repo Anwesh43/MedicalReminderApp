@@ -1,7 +1,5 @@
 package com.anwesome.app.medicalpillreminder.views;
 
-import android.app.Activity;
-import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -9,6 +7,8 @@ import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.RectF;
 import android.hardware.display.DisplayManager;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.util.AttributeSet;
 import android.view.Display;
 import android.view.MotionEvent;
@@ -16,7 +16,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 
 import com.anwesome.app.medicalpillreminder.R;
 import com.anwesome.app.medicalpillreminder.RealmModelUtil;
@@ -50,7 +49,7 @@ public class RefillLayout extends ViewGroup{
         if(!isLoaded) {
             for(int i=0;i<getChildCount();i++){
                 View view = getChildAt(i);
-                if(view instanceof PlusView) {
+                if(view instanceof PlusView && plusViewRequired()) {
                     view.layout(7*width/10,7*height/10,7*width/10+height/10,7*height/10+height/10);
                 }
                 else {
@@ -63,7 +62,9 @@ public class RefillLayout extends ViewGroup{
         }
     }
     public void showInputDialog() {
-        final Activity activity = (Activity)context;
+        final AppCompatActivity activity = (AppCompatActivity) context;
+        final ActionBar actionBar = activity.getSupportActionBar();
+        actionBar.setTitle("Add New Pill");
         activity.setContentView(R.layout.dialog_add_pill);
         final EditText pillNameText = (EditText) activity.findViewById(R.id.pill_name);
         final EditText pillNosText = (EditText) activity.findViewById(R.id.pill_number);
@@ -95,10 +96,14 @@ public class RefillLayout extends ViewGroup{
                     String pillName = pillNameText.getText().toString();
                     int pillNumber = Integer.parseInt(pillNosText.getText().toString());
                     realmModelUtil.createPill(pillName,pillNumber);
+                    actionBar.setTitle("Pill Refill");
                     activity.setContentView(new RefillLayout(context));
                 }
             }
         });
+    }
+    public boolean plusViewRequired() {
+        return true;
     }
     public void onMeasure(int wspec,int hspec) {
         Display display = getDisplay();
@@ -122,11 +127,16 @@ public class RefillLayout extends ViewGroup{
     public void addViewsInLayout(int w,int h) {
         RealmResults<Pill> pills = realmModelUtil.getPills();
         for(Pill pill:pills) {
-            RefillView refillView = new RefillView(context,pill);
+            RefillView refillView = getView(context,pill);
             addView(refillView,new LayoutParams(w,h/8));
         }
-        PlusView plusView = new PlusView(context);
-        addView(plusView,new LayoutParams(h/9,h/9));
+        if(plusViewRequired()) {
+            PlusView plusView = new PlusView(context);
+            addView(plusView, new LayoutParams(h / 9, h / 9));
+        }
+    }
+    public RefillView getView(Context context,Pill pill) {
+        return new RefillView(context,pill);
     }
     class RefillView extends BaseView {
         private Pill pill;
