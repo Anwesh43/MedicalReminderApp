@@ -1,5 +1,7 @@
 package com.anwesome.app.medicalpillreminder.views;
 
+import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -12,8 +14,13 @@ import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
 
+import com.anwesome.app.medicalpillreminder.R;
 import com.anwesome.app.medicalpillreminder.RealmModelUtil;
+import com.anwesome.app.medicalpillreminder.ValidationController;
 import com.anwesome.app.medicalpillreminder.models.Pill;
 
 import io.realm.RealmResults;
@@ -55,6 +62,44 @@ public class RefillLayout extends ViewGroup{
             isLoaded = true;
         }
     }
+    public void showInputDialog() {
+        final Activity activity = (Activity)context;
+        activity.setContentView(R.layout.dialog_add_pill);
+        final EditText pillNameText = (EditText) activity.findViewById(R.id.pill_name);
+        final EditText pillNosText = (EditText) activity.findViewById(R.id.pill_number);
+        final Button add = (Button)activity.findViewById(R.id.add);
+        final ValidationController validationController = new ValidationController();
+        validationController.addView(pillNameText,null);
+        validationController.addView(pillNosText, new ValidationController.ExtraValidator() {
+            @Override
+            public boolean validateExtra() {
+                try {
+                    int number = Integer.parseInt(pillNosText.getText().toString());
+                    return true;
+                }
+                catch (Exception ex) {
+
+                }
+                return false;
+            }
+
+            @Override
+            public String getErrorMessage() {
+                return "Please enter a number";
+            }
+        });
+        add.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(validationController.allTextViewsAreValid()) {
+                    String pillName = pillNameText.getText().toString();
+                    int pillNumber = Integer.parseInt(pillNosText.getText().toString());
+                    realmModelUtil.createPill(pillName,pillNumber);
+                    activity.setContentView(new RefillLayout(context));
+                }
+            }
+        });
+    }
     public void onMeasure(int wspec,int hspec) {
         Display display = getDisplay();
         Point size = new Point();
@@ -63,22 +108,25 @@ public class RefillLayout extends ViewGroup{
         int h = size.y;
         width = w;
         height = h;
-        RealmResults<Pill> pills = realmModelUtil.getPills();
-        if(!isAdded) {
 
-            for(Pill pill:pills) {
-                RefillView refillView = new RefillView(context,pill);
-                addView(refillView,new LayoutParams(w,h/8));
-            }
-            PlusView plusView = new PlusView(context);
-            addView(plusView,new LayoutParams(h/9,h/9));
+        if(!isAdded) {
+            addViewsInLayout(w,h);
             isAdded = true;
         }
         for(int i=0;i<getChildCount();i++) {
             View view = getChildAt(i);
             measureChild(view,wspec,hspec);
         }
-        setMeasuredDimension(w,Math.max(h,(h/6)*pills.size()));
+        setMeasuredDimension(w,Math.max(h,(h/6)*getChildCount()));
+    }
+    public void addViewsInLayout(int w,int h) {
+        RealmResults<Pill> pills = realmModelUtil.getPills();
+        for(Pill pill:pills) {
+            RefillView refillView = new RefillView(context,pill);
+            addView(refillView,new LayoutParams(w,h/8));
+        }
+        PlusView plusView = new PlusView(context);
+        addView(plusView,new LayoutParams(h/9,h/9));
     }
     class RefillView extends BaseView {
         private Pill pill;
@@ -195,6 +243,7 @@ public class RefillLayout extends ViewGroup{
                     dir = 0;
                     scale = 0.8f;
                     isAnimated = false;
+                    showInputDialog();
                 }
                 try {
                     Thread.sleep(50);
