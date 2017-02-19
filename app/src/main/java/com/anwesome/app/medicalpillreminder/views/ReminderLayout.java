@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 
 import com.anwesome.app.medicalpillreminder.models.Pill;
 
@@ -24,6 +25,8 @@ public class ReminderLayout extends RefillLayout {
         return new ReminderView(context,pill);
     }
     public class ReminderView extends RefillView {
+        private Pill pill;
+        private Icon plus;
         public ReminderView(Context context, Pill pill) {
             super(context,pill);
         }
@@ -31,6 +34,10 @@ public class ReminderLayout extends RefillLayout {
 
         }
         public void drawControls(Canvas canvas, Paint paint,int w,int h) {
+            String notificationTimes = pill.getNotificationTimes()+"8:30,9:30";
+            canvas.drawText(notificationTimes,w/10,h/6,paint);
+        }
+        public void handleTap(float x,float y) {
 
         }
     }
