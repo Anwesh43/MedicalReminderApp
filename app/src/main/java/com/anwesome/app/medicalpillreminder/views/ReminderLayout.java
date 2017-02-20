@@ -6,7 +6,10 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
+import android.view.View;
+import android.widget.Toast;
 
+import com.anwesome.app.medicalpillreminder.RealmModelUtil;
 import com.anwesome.app.medicalpillreminder.models.Pill;
 
 /**
@@ -15,15 +18,17 @@ import com.anwesome.app.medicalpillreminder.models.Pill;
 public class ReminderLayout extends RefillLayout {
     private SchedulerView schedulerView;
     private Activity activity;
-    public ReminderLayout(Context context, AttributeSet attrs) {
+    private RealmModelUtil realmModelUtil;
+    public ReminderLayout(final Context context, AttributeSet attrs) {
         super(context,attrs);
-        schedulerView = new SchedulerView(context);
+        realmModelUtil = new RealmModelUtil(context);
         activity = (Activity)context;
     }
-    public ReminderLayout(Context context) {
+    public ReminderLayout(final Context context) {
         super(context);
-        schedulerView = new SchedulerView(context);
+        realmModelUtil = new RealmModelUtil(context);
         activity = (Activity)context;
+
     }
     public boolean plusViewRequired() {
         return false;
@@ -34,9 +39,16 @@ public class ReminderLayout extends RefillLayout {
     public class ReminderView extends RefillView {
         private Pill pill;
         private Icon plus;
-        public ReminderView(Context context, Pill pill) {
+        public ReminderView(final Context context, Pill pill) {
             super(context,pill);
             this.pill = pill;
+            schedulerView = new SchedulerView(context, new SubmitListener() {
+                @Override
+                public void onSubmit(String hour,String minute,String period) {
+                    Toast.makeText(context,hour+":"+minute+":"+period,Toast.LENGTH_LONG).show();
+                    activity.setContentView(new ReminderLayout(context));
+                }
+            });
         }
         public void init(int w,int h) {
             plus = new Icon(9*w/10,2*h/3,w/20){
