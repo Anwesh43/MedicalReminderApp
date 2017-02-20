@@ -52,6 +52,9 @@ public class RefillLayout extends ViewGroup{
                 if(view instanceof PlusView && plusViewRequired()) {
                     view.layout(7*width/10,7*height/10,7*width/10+height/10,7*height/10+height/10);
                 }
+                else if(view instanceof SchedulerView) {
+                    view.layout(width/4,7*height/10,(3*width)/4,height);
+                }
                 else {
                     view.layout(0, prev, width, prev + gap);
                     prev += gap+gap/6;
@@ -104,6 +107,12 @@ public class RefillLayout extends ViewGroup{
     }
     public boolean plusViewRequired() {
         return true;
+    }
+    public int getDeviceWidth() {
+        return width;
+    }
+    public int getDeviceHeight() {
+        return height;
     }
     public void onMeasure(int wspec,int hspec) {
         Display display = getDisplay();
@@ -218,7 +227,7 @@ public class RefillLayout extends ViewGroup{
                 paint.setColor(Color.WHITE);
                 canvas.drawCircle(x,y,r,paint);
             }
-            private void handleTap(float x,float y) {
+            public void handleTap(float x,float y) {
                 boolean condition =  x>=this.x-this.r && x<=this.x+this.r && y>=this.y-this.r && y<=this.y+this.r;
                 if(condition) {
                     handleRealm();
