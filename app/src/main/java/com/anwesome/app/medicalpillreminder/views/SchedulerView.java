@@ -132,8 +132,8 @@ public class SchedulerView extends View {
                 index = labels.size() / 2;
             }
             setUpBoxes();
-            upArrow = new ArrowButton(x,h/2-gap/2,-1,w/3);
-            downArrow = new ArrowButton(x,h/2+gap/2,1,w/3);
+            upArrow = new ArrowButton(x,h/2-(2*gap)/3,-1,w/2);
+            downArrow = new ArrowButton(x,h/2+(2*gap)/3,1,w/2);
             path.moveTo(x-gap/2,h/2-gap/2);
             path.addRect(new RectF(x-gap/2,h/2-gap/2,x+gap/2,h/2+gap/2), Path.Direction.CCW);
         }
@@ -211,9 +211,9 @@ public class SchedulerView extends View {
         }
         public void draw(Canvas canvas, Paint paint, float x, float gap) {
             paint.setColor(Color.WHITE);
-            canvas.drawRect(new RectF(x - gap / 2, y - gap / 2, x + gap / 2, y + gap / 2), paint);
+            canvas.drawRect(new RectF(x - gap / 2, y - gap / 2, x + gap / 2, y + gap / 2),paint);
             paint.setColor(Color.BLACK);
-            paint.setTextSize(gap / 4);
+            paint.setTextSize(gap / 6);
             canvas.drawText(label, x - paint.measureText(label) / 2, y, paint);
             y += speed;
         }

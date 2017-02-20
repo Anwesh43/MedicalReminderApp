@@ -62,8 +62,8 @@ public class BaseButton {
         canvas.drawRoundRect(new RectF(-w/2,-h/2,w/2,h/2),r,r,paint);
         canvas.restore();
         scale+=speed;
-        if(scale >= 1) {
-            scale = 1;
+        if(scale >= 1.2f) {
+            scale = 0;
             speed = 0;
             stopExpanding = true;
 
