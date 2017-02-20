@@ -44,7 +44,7 @@ public class Pill extends RealmObject{
         this.notificationTimes = notificationTimes;
     }
     public void addNotification(String notification) {
-        if(notification  == null || notificationTimes.equals("")) {
+        if(notificationTimes  == null || notificationTimes.equals("")) {
             notificationTimes = notification;
         }
         else {

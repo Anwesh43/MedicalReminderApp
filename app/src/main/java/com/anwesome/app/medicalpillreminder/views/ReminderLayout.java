@@ -1,22 +1,22 @@
 package com.anwesome.app.medicalpillreminder.views;
 
 import android.app.Activity;
+import android.app.AlarmManager;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.util.AttributeSet;
-import android.view.MotionEvent;
-import android.view.View;
 import android.widget.Toast;
 
 import com.anwesome.app.medicalpillreminder.RealmModelUtil;
+import com.anwesome.app.medicalpillreminder.ReminderUtil;
 import com.anwesome.app.medicalpillreminder.models.Pill;
 
 /**
  * Created by anweshmishra on 17/02/17.
  */
 public class ReminderLayout extends RefillLayout {
-    private SchedulerView schedulerView;
+
     private Activity activity;
     private RealmModelUtil realmModelUtil;
     public ReminderLayout(final Context context, AttributeSet attrs) {
@@ -39,13 +39,16 @@ public class ReminderLayout extends RefillLayout {
     public class ReminderView extends RefillView {
         private Pill pill;
         private Icon plus;
-        public ReminderView(final Context context, Pill pill) {
+        private SchedulerView schedulerView;
+        public ReminderView(final Context context, final Pill pill) {
             super(context,pill);
             this.pill = pill;
             schedulerView = new SchedulerView(context, new SubmitListener() {
                 @Override
                 public void onSubmit(String hour,String minute,String period) {
                     Toast.makeText(context,hour+":"+minute+":"+period,Toast.LENGTH_LONG).show();
+                    realmModelUtil.addNotification(pill.getId(),hour+":"+minute+" "+period);
+                    ReminderUtil.createReminderForPill(activity,pill,hour,minute,period);
                     activity.setContentView(new ReminderLayout(context));
                 }
             });
@@ -65,7 +68,7 @@ public class ReminderLayout extends RefillLayout {
             };
         }
         public void drawControls(Canvas canvas, Paint paint,int w,int h) {
-            String notificationTimes = pill.getNotificationTimes()==null?" ":pill.getNotificationTimes()+"8:30,9:30";
+            String notificationTimes = pill.getNotificationTimes()==null?" ":pill.getNotificationTimes();
             canvas.drawText(notificationTimes,w/10,2*h/3,paint);
             plus.draw(canvas,paint);
         }

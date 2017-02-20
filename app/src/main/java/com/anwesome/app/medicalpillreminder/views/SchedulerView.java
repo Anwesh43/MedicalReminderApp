@@ -55,8 +55,9 @@ public class SchedulerView extends View {
         }
     }
     private void update() {
-
-        container.update();
+        if(container!=null) {
+            container.update();
+        }
     }
     public void init(int w,int h) {
         submitButton = new BaseButton("Submit");
