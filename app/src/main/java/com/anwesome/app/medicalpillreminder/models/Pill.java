@@ -9,7 +9,7 @@ import io.realm.RealmObject;
  */
 public class Pill extends RealmObject{
     private String name;
-    private String notificationTimes;
+    private String notificationTimes = "";
     private int id;
     private int pillsNumber = 0;
     public void setName(String name) {
@@ -42,6 +42,14 @@ public class Pill extends RealmObject{
 
     public void setNotificationTimes(String notificationTimes) {
         this.notificationTimes = notificationTimes;
+    }
+    public void addNotification(String notification) {
+        if(notification  == null || notificationTimes.equals("")) {
+            notificationTimes = notification;
+        }
+        else {
+            notificationTimes = notificationTimes + "," + notification;
+        }
     }
     public int hashCode() {
         return name.hashCode()+id+pillsNumber+notificationTimes.hashCode();
