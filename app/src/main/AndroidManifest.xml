@@ -18,6 +18,7 @@
         <activity android:name=".RefillActivity">
         </activity>
         <activity android:name=".ReminderActivity"/>
+        <activity android:name=".NotificationActivity"/>
     </application>
 
 </manifest>
