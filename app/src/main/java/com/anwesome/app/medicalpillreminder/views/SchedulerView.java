@@ -18,11 +18,12 @@ public class SchedulerView extends View {
     private BaseButton submitButton;
     private TimeContainer container;
     private int render = 0;
-
+    private SubmitListener onSubmitListener;
     private Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private TimeContainer hourContainer,minuteContainer,periodContainer;
-    public SchedulerView(Context context) {
+    public SchedulerView(Context context,SubmitListener onSubmitListener) {
         super(context);
+        this.onSubmitListener = onSubmitListener;
     }
 
     public void onDraw(Canvas canvas) {
@@ -40,7 +41,9 @@ public class SchedulerView extends View {
             update();
             if(submitButton!=null && submitButton.isStopExpanding()) {
                 isAnimated = false;
-                submitButton.click(this);
+                if(onSubmitListener!=null) {
+                    onSubmitListener.onSubmit(hourContainer.labels.get(hourContainer.index),minuteContainer.labels.get(minuteContainer.index),periodContainer.labels.get(periodContainer.index));
+                }
             }
             try {
                 Thread.sleep(50);
