@@ -3,6 +3,9 @@ package com.anwesome.app.medicalpillreminder.views;
 import android.content.Context;
 import android.graphics.*;
 import android.view.*;
+
+import com.anwesome.app.medicalpillreminder.buttons.ArrowButton;
+
 import java.util.*;
 
 /**
@@ -11,26 +14,27 @@ import java.util.*;
 public class SchedulerView extends View {
     private boolean isAnimated = false;
     private Path path = new Path();
+    private TimeContainer container;
     private int render = 0;
-    private GestureDetector gestureDetector;
+
     private Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private TimeContainer hourContainer,minuteContainer,periodContainer;
     public SchedulerView(Context context) {
         super(context);
-        gestureDetector = new GestureDetector(context,new SchedulerGestureListener());
     }
 
     public void onDraw(Canvas canvas) {
         if(render == 0) {
             init(canvas.getWidth(),canvas.getHeight());
         }
-        canvas.clipPath(path);
+        canvas.drawColor(Color.parseColor("#FF6F00"));
+        //canvas.clipPath(path);
         hourContainer.draw(canvas,paint);
         minuteContainer.draw(canvas,paint);
         periodContainer.draw(canvas,paint);
         render++;
         if(isAnimated) {
-            update(hourContainer,minuteContainer,periodContainer);
+            update();
             try {
                 Thread.sleep(50);
                 invalidate();
@@ -40,12 +44,9 @@ public class SchedulerView extends View {
             }
         }
     }
-    private void update(TimeContainer ...timeContainers) {
-        for(TimeContainer timeContainer:timeContainers) {
-            if(timeContainer!=null) {
-                timeContainer.update();
-            }
-        }
+    private void update() {
+
+        container.update();
     }
     public void init(int w,int h) {
         hourContainer = new TimeContainer();
@@ -73,49 +74,38 @@ public class SchedulerView extends View {
         minuteContainer.setLabels(minutes);
         path.addRect(new RectF(w/4,h-h/6,3*w/4,h+h/6), Path.Direction.CCW);
     }
-    public boolean onTouchEvent(MotionEvent event) {
-        return gestureDetector.onTouchEvent(event);
+    private void handleTap(float x,float y) {
+        if(hourContainer.handleTap(x)) {
+            container = hourContainer;
+            return;
+        }
+        if(minuteContainer.handleTap(x)) {
+            container = minuteContainer;
+            return;
+        }
+        if (periodContainer.handleTap(x)) {
+            container.handleTap(x);
+            return;
+        }
     }
-    private class SchedulerGestureListener extends GestureDetector.SimpleOnGestureListener {
-        private TimeContainer container;
-        private void handleDown(float x,TimeContainer ...timeContainers) {
-            for(TimeContainer timeContainer:timeContainers) {
-                if(timeContainer.handleTap(x)) {
-                    container = timeContainer;
-                    break;
-                }
-            }
-        }
-        public boolean onDown(MotionEvent event) {
-            handleDown(event.getX(),hourContainer,minuteContainer,periodContainer);
-            return true;
-        }
-
-        public boolean onSingleTapUp(MotionEvent event) {
-            return true;
-        }
-
-        public boolean onFling(MotionEvent e1, MotionEvent e2, float velx, float vely) {
-            if(container!=null) {
-                if (e1.getY() < e2.getY()) {
-                    container.startMoving(1);
-                }
-                if (e1.getY() > e2.getY()) {
-                    container.startMoving(-1);
-                }
+    public boolean onTouchEvent(MotionEvent event) {
+        if(event.getAction() == MotionEvent.ACTION_DOWN && !isAnimated) {
+            handleTap(event.getX(),event.getY());
+            if(container !=null) {
                 isAnimated = true;
                 postInvalidate();
             }
-            return true;
         }
+        return true;
     }
     private class TimeContainer {
         private int time  = 0;
+        private ArrowButton upArrow,downArrow;
         private List<String> labels = new LinkedList<>();
         private List<TimeBox> timeBoxes = new LinkedList<>();
         private float x = 0, w = 100, h = 100, gap;
         private float speed = 0;
-        private int index = 0,dir = 0;
+        private int index = 0,dir = 0,prevIndex = 0,nextIndex;
 
         public void setDimensions(float x, float w, float h) {
             this.x = x;
@@ -128,19 +118,28 @@ public class SchedulerView extends View {
             this.labels = labels;
             if (labels.size() > 0) {
                 index = labels.size() / 2;
+                prevIndex = index-1;
+                if(prevIndex<0) {
+                    prevIndex = labels.size()-1;
+                }
+                nextIndex = index+1;
+                if(nextIndex >= labels.size()) {
+                    nextIndex = 0;
+                }
+                timeBoxes.add(new TimeBox(labels.get(prevIndex),h/2-gap));
+                timeBoxes.add(new TimeBox(labels.get(index),h/2));
+                timeBoxes.add(new TimeBox(labels.get(nextIndex),h/2+gap));
             }
-            int currIndex = 0;
-            for (String label : labels) {
-                boolean current = index == currIndex;
-                timeBoxes.add(new TimeBox(label, h / 2 - (index - currIndex) * gap, current));
-                currIndex++;
-            }
+            upArrow = new ArrowButton(x,h/2-gap,-1,w/6);
+            downArrow = new ArrowButton(x,h/2+gap,1,w/6);
         }
 
         public void draw(Canvas canvas, Paint paint) {
             for (TimeBox timeBox : timeBoxes) {
                 timeBox.draw(canvas, paint, x, w);
             }
+            upArrow.draw(canvas,paint);
+            downArrow.draw(canvas,paint);
         }
 
         public void update() {
@@ -149,15 +148,17 @@ public class SchedulerView extends View {
                     timeBox.setFinalPosition();
                 }
             }
-            if(time == 3) {
+            if(time == 3 && timeBoxes.size()>0) {
                 isAnimated = false;
                 time = -1;
                 if(dir == -1) {
                     TimeBox timeBox = timeBoxes.remove(0);
+                    timeBox.setY(timeBoxes.get(timeBoxes.size()-1).getY()+gap);
                     timeBoxes.add(timeBox);
                 }
                 else {
                     TimeBox prevTimeBox = timeBoxes.remove(timeBoxes.size()-1);
+                    prevTimeBox.setY(timeBoxes.get(0).getY());
                     for(int i=0;i<timeBoxes.size();i++) {
                         TimeBox timeBox = null;
                         if(i < timeBoxes.size()) {
@@ -179,7 +180,7 @@ public class SchedulerView extends View {
             }
         }
         public boolean handleTap(float x) {
-            return x >= this.x && x <= this.x;
+            return x >= this.x-w/2 && x <= this.x+w/2;
         }
 
         public int hashCode() {
@@ -190,31 +191,25 @@ public class SchedulerView extends View {
     private class TimeBox {
         private String label;
         private float y, finalY = 0, speed = 0;
-        private boolean current = false;
-
-        public TimeBox(String label, float y, boolean current) {
+        public TimeBox(String label, float y) {
             this.label = label;
             this.y = y;
-            this.current = current;
-        }
 
-        public void setCurrent(boolean current) {
-            this.current = current;
         }
-
         public void draw(Canvas canvas, Paint paint, float x, float gap) {
-            if (current) {
-                paint.setColor(Color.WHITE);
-            } else {
-                paint.setColor(Color.GRAY);
-            }
+            canvas.drawColor(Color.WHITE);
             canvas.drawRect(new RectF(x - gap / 2, y - gap / 2, x + gap / 2, y + gap / 2), paint);
-            paint.setColor(Color.WHITE);
+            paint.setColor(Color.BLACK);
             paint.setTextSize(gap / 4);
             canvas.drawText(label, x - paint.measureText(label) / 2, y, paint);
             y += speed;
         }
-
+        public void setY(float y) {
+            this.y = y;
+        }
+        public float getY() {
+            return y;
+        }
         public int hashCode() {
             return label.hashCode() + (int) y;
         }
