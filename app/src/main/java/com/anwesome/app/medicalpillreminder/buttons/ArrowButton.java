@@ -26,7 +26,7 @@ public class ArrowButton {
     }
 
     public boolean handleTap(float x,float y) {
-        return (x>=this.x-size && x<=this.x+size && ((dir == 1 && y>=this.y && y<=this.y+dir) || (dir == -1 && y>=this.y-dir && y<=this.y)));
+        return (x>=this.x-size && x<=this.x+size && ((dir == 1 && y>=this.y && y<=this.y+dir*size) || (dir == -1 && y>=this.y+dir*size && y<=this.y)));
     }
     public int hashCode() {
         return (int)x+(int)y+(int)dir;
