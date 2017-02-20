@@ -27,7 +27,7 @@ public class RealmModelUtil {
     public void changePillNumber(int id,int dir) {
         realm.beginTransaction();
         Pill pill = realm.where(Pill.class).equalTo("id",id).findFirst();
-        if(pill!=null) {
+        if(pill!=null && !(dir == -1 && pill.getPillsNumber() == 0)) {
             pill.changePill(dir);
         }
         realm.commitTransaction();
