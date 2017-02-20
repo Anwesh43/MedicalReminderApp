@@ -75,16 +75,16 @@ public class SchedulerView extends View {
         path.addRect(new RectF(w/4,h-h/6,3*w/4,h+h/6), Path.Direction.CCW);
     }
     private void handleTap(float x,float y) {
-        if(hourContainer.handleTap(x)) {
+        if(hourContainer.handleTap(x,y)) {
             container = hourContainer;
             return;
         }
-        if(minuteContainer.handleTap(x)) {
+        if(minuteContainer.handleTap(x,y)) {
             container = minuteContainer;
             return;
         }
-        if (periodContainer.handleTap(x)) {
-            container.handleTap(x);
+        if (periodContainer.handleTap(x,y)) {
+            container = periodContainer;
             return;
         }
     }
@@ -113,22 +113,24 @@ public class SchedulerView extends View {
             this.h = h;
             this.gap = h / 3;
         }
-
+        private void setUpBoxes() {
+            prevIndex = index-1;
+            if(prevIndex<0) {
+                prevIndex = labels.size()-1;
+            }
+            nextIndex = index+1;
+            if(nextIndex >= labels.size()) {
+                nextIndex = 0;
+            }
+            timeBoxes.add(new TimeBox(labels.get(prevIndex),h/2-gap));
+            timeBoxes.add(new TimeBox(labels.get(index),h/2));
+            timeBoxes.add(new TimeBox(labels.get(nextIndex),h/2+gap));
+        }
         public void setLabels(List<String> labels) {
             this.labels = labels;
             if (labels.size() > 0) {
                 index = labels.size() / 2;
-                prevIndex = index-1;
-                if(prevIndex<0) {
-                    prevIndex = labels.size()-1;
-                }
-                nextIndex = index+1;
-                if(nextIndex >= labels.size()) {
-                    nextIndex = 0;
-                }
-                timeBoxes.add(new TimeBox(labels.get(prevIndex),h/2-gap));
-                timeBoxes.add(new TimeBox(labels.get(index),h/2));
-                timeBoxes.add(new TimeBox(labels.get(nextIndex),h/2+gap));
+
             }
             upArrow = new ArrowButton(x,h/2-gap,-1,w/6);
             downArrow = new ArrowButton(x,h/2+gap,1,w/6);
@@ -144,43 +146,43 @@ public class SchedulerView extends View {
 
         public void update() {
             for (TimeBox timeBox:timeBoxes) {
-                if(time == 3) {
+                if(time == 5) {
                     timeBox.setFinalPosition();
                 }
             }
-            if(time == 3 && timeBoxes.size()>0) {
+            if(time == 5 && timeBoxes.size()>0) {
                 isAnimated = false;
                 time = -1;
-                if(dir == -1) {
-                    TimeBox timeBox = timeBoxes.remove(0);
-                    timeBox.setY(timeBoxes.get(timeBoxes.size()-1).getY()+gap);
-                    timeBoxes.add(timeBox);
+                container = null;
+                index += dir;
+                if(index>=labels.size()) {
+                    index = 0;
                 }
-                else {
-                    TimeBox prevTimeBox = timeBoxes.remove(timeBoxes.size()-1);
-                    prevTimeBox.setY(timeBoxes.get(0).getY());
-                    for(int i=0;i<timeBoxes.size();i++) {
-                        TimeBox timeBox = null;
-                        if(i < timeBoxes.size()) {
-                            timeBox = timeBoxes.get(i);
-                        }
-                        timeBoxes.set(i,prevTimeBox);
-                        prevTimeBox = timeBox;
-                    }
+                if(index<0) {
+                    index = labels.size()-1;
                 }
+                setUpBoxes();
                 dir = 0;
             }
             time++;
         }
-        public void startMoving(int dir) {
-            this.dir = dir;
+        public void startMoving() {
             time = 0;
             for(TimeBox timeBox:timeBoxes) {
                 timeBox.setSpeed(dir, gap);
             }
         }
-        public boolean handleTap(float x) {
-            return x >= this.x-w/2 && x <= this.x+w/2;
+        public boolean handleTap(float x,float y) {
+            boolean condition = upArrow.handleTap(x,y);
+            if(condition) {
+                dir = -1;
+            }
+            condition = downArrow.handleTap(x,y);
+            if(condition) {
+                dir = 1;
+            }
+            startMoving();
+            return condition;
         }
 
         public int hashCode() {
@@ -216,7 +218,7 @@ public class SchedulerView extends View {
 
         public void setSpeed(int dir,float gap) {
             finalY = y+dir*gap;
-            speed = (finalY - y) / 3;
+            speed = (finalY - y) / 5;
         }
 
         public void setFinalPosition() {
