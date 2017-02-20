@@ -5,6 +5,7 @@ import android.graphics.*;
 import android.view.*;
 
 import com.anwesome.app.medicalpillreminder.buttons.ArrowButton;
+import com.anwesome.app.medicalpillreminder.buttons.BaseButton;
 
 import java.util.*;
 
@@ -14,6 +15,7 @@ import java.util.*;
 public class SchedulerView extends View {
     private boolean isAnimated = false;
     private Path path = new Path();
+    private BaseButton submitButton;
     private TimeContainer container;
     private int render = 0;
 
@@ -32,9 +34,14 @@ public class SchedulerView extends View {
         hourContainer.draw(canvas,paint);
         minuteContainer.draw(canvas,paint);
         periodContainer.draw(canvas,paint);
+        submitButton.draw(canvas,paint);
         render++;
         if(isAnimated) {
             update();
+            if(submitButton!=null && submitButton.isStopExpanding()) {
+                isAnimated = false;
+                submitButton.click(this);
+            }
             try {
                 Thread.sleep(50);
                 invalidate();
@@ -49,6 +56,9 @@ public class SchedulerView extends View {
         container.update();
     }
     public void init(int w,int h) {
+        submitButton = new BaseButton("Submit");
+        paint.setTextSize(h/30);
+        submitButton.initProperties(w/2,3*h/5,paint);
         hourContainer = new TimeContainer();
         hourContainer.setDimensions(w/2-w/3,w/3,h/3,h/4);
         minuteContainer = new TimeContainer();
@@ -91,6 +101,10 @@ public class SchedulerView extends View {
     public boolean onTouchEvent(MotionEvent event) {
         if(event.getAction() == MotionEvent.ACTION_DOWN && !isAnimated) {
             handleTap(event.getX(),event.getY());
+            if(submitButton!=null && submitButton.handleClick(event.getX(),event.getY())) {
+                isAnimated = true;
+                postInvalidate();
+            }
             if(container !=null) {
                 isAnimated = true;
                 postInvalidate();
