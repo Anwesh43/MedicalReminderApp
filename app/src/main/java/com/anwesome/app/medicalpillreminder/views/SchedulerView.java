@@ -132,10 +132,10 @@ public class SchedulerView extends View {
                 index = labels.size() / 2;
             }
             setUpBoxes();
-            upArrow = new ArrowButton(x,h/2-gap,-1,w/3);
-            downArrow = new ArrowButton(x,h/2+gap,1,w/3);
+            upArrow = new ArrowButton(x,h/2-gap/2,-1,w/3);
+            downArrow = new ArrowButton(x,h/2+gap/2,1,w/3);
             path.moveTo(x-gap/2,h/2-gap/2);
-            path.addRect(new RectF(x-gap/2,h/2-gap/2,x+gap/2,y+gap/2), Path.Direction.CCW);
+            path.addRect(new RectF(x-gap/2,h/2-gap/2,x+gap/2,h/2+gap/2), Path.Direction.CCW);
         }
 
         public void draw(Canvas canvas, Paint paint) {
