@@ -16,6 +16,14 @@ public class RealmModelUtil {
         Realm.init(context);
         realm = Realm.getInstance(new RealmConfiguration.Builder().name("pillsdb.realm").modules(new PillModule()).build());
     }
+    public void addNotification(int id,String notification) {
+        realm.beginTransaction();
+        Pill pill = realm.where(Pill.class).equalTo("id",id).findFirst();
+        if(pill!=null) {
+            pill.addNotification(notification);
+        }
+        realm.commitTransaction();
+    }
     public void changePillNumber(int id,int dir) {
         realm.beginTransaction();
         Pill pill = realm.where(Pill.class).equalTo("id",id).findFirst();
