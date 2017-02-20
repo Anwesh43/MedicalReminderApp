@@ -1,17 +1,9 @@
 package com.anwesome.app.medicalpillreminder.views;
 
 import android.content.Context;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Path;
-import android.graphics.RectF;
+import android.graphics.*;
 import android.view.*;
-
-import java.sql.Time;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by anweshmishra on 19/02/17.
@@ -60,6 +52,7 @@ public class SchedulerView extends View {
         hourContainer.setDimensions(w/2-w/3,w/3,h/3);
         minuteContainer = new TimeContainer();
         minuteContainer.setDimensions(w/2,w/3,h/3);
+        periodContainer = new TimeContainer();
         periodContainer.setDimensions(w/2+w/3,w/3,h/3);
         periodContainer.setLabels(new LinkedList<String>(){{
             add("AM");
