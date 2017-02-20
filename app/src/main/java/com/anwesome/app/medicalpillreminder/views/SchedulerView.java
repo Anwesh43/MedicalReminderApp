@@ -50,11 +50,11 @@ public class SchedulerView extends View {
     }
     public void init(int w,int h) {
         hourContainer = new TimeContainer();
-        hourContainer.setDimensions(w/2-w/3,w/3,h/3);
+        hourContainer.setDimensions(w/2-w/3,w/3,h/3,h/4);
         minuteContainer = new TimeContainer();
-        minuteContainer.setDimensions(w/2,w/3,h/3);
+        minuteContainer.setDimensions(w/2,w/3,h/3,h/4);
         periodContainer = new TimeContainer();
-        periodContainer.setDimensions(w/2+w/3,w/3,h/3);
+        periodContainer.setDimensions(w/2+w/3,w/3,h/3,h/4);
         periodContainer.setLabels(new LinkedList<String>(){{
             add("AM");
             add("PM");
@@ -103,14 +103,14 @@ public class SchedulerView extends View {
         private ArrowButton upArrow,downArrow;
         private List<String> labels = new LinkedList<>();
         private List<TimeBox> timeBoxes = new LinkedList<>();
-        private float x = 0, w = 100, h = 100, gap;
-        private float speed = 0;
+        private float x = 0, w = 100, h = 100, gap,y;
         private int index = 0,dir = 0,prevIndex = 0,nextIndex;
-
-        public void setDimensions(float x, float w, float h) {
+        private Path path = new Path();
+        public void setDimensions(float x, float w, float h,float y) {
             this.x = x;
             this.w = w;
             this.h = h;
+            this.y = y;
             this.gap = h / 3;
         }
         private void setUpBoxes() {
@@ -130,18 +130,26 @@ public class SchedulerView extends View {
             this.labels = labels;
             if (labels.size() > 0) {
                 index = labels.size() / 2;
-
             }
-            upArrow = new ArrowButton(x,h/2-gap,-1,w/6);
-            downArrow = new ArrowButton(x,h/2+gap,1,w/6);
+            setUpBoxes();
+            upArrow = new ArrowButton(x,h/2-gap,-1,w/3);
+            downArrow = new ArrowButton(x,h/2+gap,1,w/3);
+            path.moveTo(x-gap/2,h/2-gap/2);
+            path.addRect(new RectF(x-gap/2,h/2-gap/2,x+gap/2,y+gap/2), Path.Direction.CCW);
         }
 
         public void draw(Canvas canvas, Paint paint) {
+            canvas.save();
+            canvas.translate(0,y);
+            canvas.save();
+            canvas.clipPath(path);
             for (TimeBox timeBox : timeBoxes) {
                 timeBox.draw(canvas, paint, x, w);
             }
+            canvas.restore();
             upArrow.draw(canvas,paint);
             downArrow.draw(canvas,paint);
+            canvas.restore();
         }
 
         public void update() {
@@ -154,7 +162,7 @@ public class SchedulerView extends View {
                 isAnimated = false;
                 time = -1;
                 container = null;
-                index += dir;
+                index -= dir;
                 if(index>=labels.size()) {
                     index = 0;
                 }
@@ -173,13 +181,16 @@ public class SchedulerView extends View {
             }
         }
         public boolean handleTap(float x,float y) {
+            y -= this.y;
             boolean condition = upArrow.handleTap(x,y);
             if(condition) {
                 dir = -1;
             }
-            condition = downArrow.handleTap(x,y);
-            if(condition) {
-                dir = 1;
+            else {
+                condition = downArrow.handleTap(x, y);
+                if (condition) {
+                    dir = 1;
+                }
             }
             startMoving();
             return condition;
@@ -199,7 +210,7 @@ public class SchedulerView extends View {
 
         }
         public void draw(Canvas canvas, Paint paint, float x, float gap) {
-            canvas.drawColor(Color.WHITE);
+            paint.setColor(Color.WHITE);
             canvas.drawRect(new RectF(x - gap / 2, y - gap / 2, x + gap / 2, y + gap / 2), paint);
             paint.setColor(Color.BLACK);
             paint.setTextSize(gap / 4);
