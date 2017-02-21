@@ -2,6 +2,7 @@ package com.anwesome.app.medicalpillreminder.views;
 
 import android.content.Context;
 import android.graphics.*;
+import android.util.Log;
 import android.view.*;
 
 import com.anwesome.app.medicalpillreminder.buttons.ArrowButton;
@@ -21,11 +22,22 @@ public class SchedulerView extends View {
     private SubmitListener onSubmitListener;
     private Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private TimeContainer hourContainer,minuteContainer,periodContainer;
+    private int hourIndex,minuteIndex,periodIndex;
     public SchedulerView(Context context,SubmitListener onSubmitListener) {
         super(context);
         this.onSubmitListener = onSubmitListener;
+        initIndexes();
     }
-
+    private void initIndexes() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+        hourIndex = calendar.get(Calendar.HOUR_OF_DAY);
+        periodIndex = hourIndex/12;
+        hourIndex = hourIndex%12;
+        minuteIndex = calendar.get(Calendar.MINUTE);
+        String periods[] = {"AM","PM"};
+        Log.d("time",hourIndex+":"+minuteIndex+" "+periods[periodIndex]);
+    }
     public void onDraw(Canvas canvas) {
         if(render == 0) {
             init(canvas.getWidth(),canvas.getHeight());
@@ -72,7 +84,7 @@ public class SchedulerView extends View {
         periodContainer.setLabels(new LinkedList<String>(){{
             add("AM");
             add("PM");
-        }});
+        }},periodIndex);
         List<String> hours = new LinkedList<>(),minutes = new LinkedList<>();
         for(int i = 0;i<60;i++) {
             String newTime = ""+i;
@@ -84,8 +96,8 @@ public class SchedulerView extends View {
             }
             minutes.add(newTime);
         }
-        hourContainer.setLabels(hours);
-        minuteContainer.setLabels(minutes);
+        hourContainer.setLabels(hours,hourIndex);
+        minuteContainer.setLabels(minutes,minuteIndex);
         path.addRect(new RectF(w/4,h-h/6,3*w/4,h+h/6), Path.Direction.CCW);
     }
     private void handleTap(float x,float y) {
@@ -144,10 +156,10 @@ public class SchedulerView extends View {
             timeBoxes.add(new TimeBox(labels.get(index),h/2));
             timeBoxes.add(new TimeBox(labels.get(nextIndex),h/2+gap));
         }
-        public void setLabels(List<String> labels) {
+        public void setLabels(List<String> labels,int index) {
             this.labels = labels;
             if (labels.size() > 0) {
-                index = labels.size() / 2;
+                this.index = index;
             }
             setUpBoxes();
             upArrow = new ArrowButton(x,h/2-(2*gap)/3,-1,w/2);
