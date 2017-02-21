@@ -33,7 +33,7 @@ public class ReminderUtil {
         calendar.setTimeInMillis(System.currentTimeMillis());
         calendar.set(Calendar.HOUR_OF_DAY,hours);
         calendar.set(Calendar.MINUTE,Integer.parseInt(minute));
-        alarmManager.setRepeating(AlarmManager.RTC,calendar.getTimeInMillis(),5*60*1000,notificationIntent);
+        alarmManager.setRepeating(AlarmManager.RTC,calendar.getTimeInMillis(),AlarmManager.INTERVAL_DAY,notificationIntent);
     }
     class ReminderService extends Service {
         public void onCreate() {
