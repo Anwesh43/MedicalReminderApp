@@ -83,6 +83,7 @@ public class BaseButton {
     public boolean handleClick(float x,float y) {
         boolean touched =  (x>=this.x && x<=this.x+w && y>=this.y && y<=this.y+h);
         if(touched) {
+            stopExpanding = false;
             speed = 0.15f;
         }
         return touched;
